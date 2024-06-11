@@ -1,1 +1,1 @@
-worker: python generate.py
+worker: python3 generate.py
