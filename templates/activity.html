@@ -2,10 +2,23 @@
 {% block title %}Activity Time Table{% endblock %}
 {% block content %}
 <h1></h1>
-{{ data }}
-<ul>
-{% for activity in data %}
+<table>
+    <thead>
+        <th>Activity</th>
+        <th>Start</th>
+        <th>End</th>
+        <th>Location</th>
+        <th>Availibilty</th>
+    </thead>
+{% for activity in data.Results %}
+<tr>
+    <td>{{ activity.title }}</td>
+    <td>{{ activity.start}}</td>
+    <td>{{ activity.end }}</td>
+    <td>{{ activity.FacilityName }}</td>
+    <td>{{ activity.AvailableSlots }}/{{ activity.Capacity }}</td>
+</tr>
 
 {% endfor %}
-</ul>
+</table>
 {% endblock %}
