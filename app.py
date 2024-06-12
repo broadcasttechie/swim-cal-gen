@@ -1,12 +1,23 @@
-from flask import Flask
+from flask import Flask, send_file, make_response, jsonify
 from flask import request
 from flask import render_template
 import requests
 import json
 import datetime
-from datetime import timedelta
+from datetime import  timedelta
+from icalendar import Calendar, Event
+from pytz import UTC
+from flask_bootstrap import Bootstrap
 
-app = Flask("app")
+
+def create_app():
+  app = Flask("app")
+  Bootstrap(app)
+
+  return app
+
+
+app = create_app()
 
 @app.template_filter()
 def format_datetime(value, format='medium'):
@@ -18,14 +29,12 @@ def format_datetime(value, format='medium'):
     return timestamp.format(format)
 
 
-
-
 @app.route("/")
 def index():
     url = "https://birminghamleisure.legendonlineservices.co.uk/birmingham_comm_rg_home/filteredlocationhierarchy"
     headers = { 'Content-Type': 'application/json' }
     response = requests.get(url, headers=headers)
-    test = datetime.datetime.now().astimezone().replace(microsecond=0).replace(second=0).replace(minute=0).replace(hour=0).isoformat()
+    test = datetime.datetime.strptime("2024-06-13T06:30:00", "%Y-%m-%dT%H:%M:%S")
     return render_template('home.html', sites = response.json(), test=test)
 
 
@@ -49,10 +58,52 @@ def activity(id, activity):
     }
 
 
+    json_payload = json.dumps(payload)
+    response = requests.post(url, headers=headers, data=json_payload)
+
+    activites = {}
+
+    #for a in response.json()["Results"]:
+    #    activites[a.ActivityInstanceId]["title"] = a.title
+
+    return render_template('activity.html', data=response.json(), facility=id)
+
+
+
+
+
+@app.route('/facility/<id>/activity/<activity>.ics')
+def activity_ical(id, activity):
+    cal = Calendar()
+    cal.add("prodid", "-//leisurecalendar//")
+    cal.add("version", "2.0")
+
+    url = 'https://birminghamleisure.legendonlineservices.co.uk/birmingham_comm_rg_home/Timetable/GetClassTimeTable'
+    headers = { 'Content-Type': 'application/json' }
+    payload = {
+    'ResourceSubTypeIdList': activity,
+    'FacilityLocationIdList': id,
+    'DateFrom': datetime.datetime.now().astimezone().isoformat(),
+    'DateTo': (datetime.datetime.now() + timedelta(days=90)).astimezone().isoformat()
+    }
+
+
 
     json_payload = json.dumps(payload)
     response = requests.post(url, headers=headers, data=json_payload)
-    return render_template('activity.html', data=response.json(), facility=id)
+
+    for a in response.json()['Results']:
+        event = Event()
+        event.add("summary", a["title"])
+        event.add("dtstart", datetime.datetime.strptime(a["start"], "%Y-%m-%dT%H:%M:%S"))
+        event.add("dtend", datetime.datetime.strptime(a["end"], "%Y-%m-%dT%H:%M:%S"))
+        event.add("dtstamp", datetime.datetime.now(tz=UTC))
+        event.add("priority", 5)
+        cal.add_component(event)
+
+    response = make_response(cal.to_ical())
+    response.headers["Content-Disposition"] = "attachment; filename=activites.ics"
+    return response
 
 
 @app.route("/events")
