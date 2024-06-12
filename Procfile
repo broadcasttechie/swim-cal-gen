@@ -1,1 +1,1 @@
-worker: python generate.py
+web: gunicorn app:app
