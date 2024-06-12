@@ -5,7 +5,6 @@ import requests
 import json
 import datetime
 from datetime import timedelta
-import babel
 
 app = Flask("app")
 
