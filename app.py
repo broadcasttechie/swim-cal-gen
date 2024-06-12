@@ -5,7 +5,7 @@ import requests
 import json
 import datetime
 from datetime import  timedelta
-from icalendar import Calendar, Event
+from icalendar import Calendar, Event, Timezone
 from pytz import UTC
 from flask_bootstrap import Bootstrap
 
@@ -78,9 +78,10 @@ def activity_ical(id, activity):
     cal.add("prodid", "-//leisurecalendar//")
     cal.add("version", "2.0")
 
-    timezone = cal.cal.Timezone()
-    timezone.add('TZID', 'UTC')
+    timezone = Timezone()
+    timezone.add('TZID', 'Europe/London')
     timezone.to_ical()
+    cal.add_component(timezone)
 
     url = 'https://birminghamleisure.legendonlineservices.co.uk/birmingham_comm_rg_home/Timetable/GetClassTimeTable'
     headers = { 'Content-Type': 'application/json' }
