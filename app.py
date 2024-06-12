@@ -6,7 +6,8 @@ import json
 import datetime
 from datetime import  timedelta
 from icalendar import Calendar, Event, Timezone
-from pytz import pytz, UTC
+from pytz import UTC
+import pytz
 from flask_bootstrap import Bootstrap
 
 
@@ -103,8 +104,8 @@ def activity_ical(id, activity):
     for a in response.json()['Results']:
         event = Event()
         event.add("summary", a["title"])
-        event.add("dtstart", datetime.datetime.strptime(a["start"], "%Y-%m-%dT%H:%M:%S"), tzinfo=pytz.timezone("Europe/London"))
-        event.add("dtend", datetime.datetime.strptime(a["end"], "%Y-%m-%dT%H:%M:%S"), tzinfo=pytz.timezone("Europe/London"))
+        event.add("dtstart", datetime.datetime.strptime(a["start"], "%Y-%m-%dT%H:%M:%S"))#, tzinfo=pytz.timezone("Europe/London"))
+        event.add("dtend", datetime.datetime.strptime(a["end"], "%Y-%m-%dT%H:%M:%S"))#, tzinfo=pytz.timezone("Europe/London"))
         event.add("dtstamp", datetime.datetime.now(tz=UTC))
         event.add("priority", 5)
         cal.add_component(event)
