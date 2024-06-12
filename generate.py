@@ -1,6 +1,12 @@
 import requests
 import json
 import time
+from flask import Flask
+
+app = Flask(__name__)
+
+
+
 
 url = 'https://birminghamleisure.legendonlineservices.co.uk/birmingham_comm_rg_home/Timetable/GetClassTimeTable'
 
@@ -25,3 +31,10 @@ response = requests.post(url, headers=headers, data=json_payload)
 
 for event in  response.json()['Results']:
     print(event['title'])
+
+
+
+
+@app.route("/")
+def index():
+    return "Hello World!"
