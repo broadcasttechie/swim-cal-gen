@@ -78,6 +78,10 @@ def activity_ical(id, activity):
     cal.add("prodid", "-//leisurecalendar//")
     cal.add("version", "2.0")
 
+    timezone = cal.cal.Timezone()
+    timezone.add('TZID', 'UTC')
+    timezone.to_ical()
+
     url = 'https://birminghamleisure.legendonlineservices.co.uk/birmingham_comm_rg_home/Timetable/GetClassTimeTable'
     headers = { 'Content-Type': 'application/json' }
     payload = {
@@ -91,6 +95,9 @@ def activity_ical(id, activity):
 
     json_payload = json.dumps(payload)
     response = requests.post(url, headers=headers, data=json_payload)
+
+
+
 
     for a in response.json()['Results']:
         event = Event()
