@@ -1,0 +1,20 @@
+{% extends "base.html" %}
+{% block title %}Facilities List{% endblock %}
+{% block content %}
+<p>List of facilities</p>
+
+<ul>
+{% for group in sites %}
+{% if group.Children|length > 0 %}
+<li>{{ group.Name }}</li>
+<li><ul>
+    
+{% for site in group.Children %} 
+<li><a href="{{ url_for('facility', id=site.Id) }}">{{ site.Name }}</a></li>
+{% endfor %}
+</ul></li>
+{% endif %}
+{% endfor %}
+
+</ul>
+{% endblock %}
