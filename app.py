@@ -9,6 +9,28 @@ from icalendar import Calendar, Event, Timezone
 from pytz import UTC
 import pytz
 from flask_bootstrap import Bootstrap
+from dateutil import parser
+
+from objects import Activity, Facility
+
+def get_activities(facility, activity, days=30):
+    url = 'https://birminghamleisure.legendonlineservices.co.uk/birmingham_comm_rg_home/Timetable/GetClassTimeTable'
+    headers = { 'Content-Type': 'application/json' }
+    payload = {
+    'ResourceSubTypeIdList': activity,
+    'FacilityLocationIdList': facility,
+    'DateFrom': datetime.datetime.now().astimezone().isoformat(),
+    'DateTo': (datetime.datetime.now() + timedelta(days=days)).astimezone().isoformat()
+    }
+    json_payload = json.dumps(payload)
+    activities = []
+    response = requests.post(url, headers=headers, data=json_payload)
+    for a in response.json()['Results']:
+        act = Activity(a['title'], a['start'], a['end'], a['FacilityName'], 4811, a['AvailableSlots'], a['Capacity'] )
+        activities.append(act)
+    return activities
+
+
 
 
 def create_app():
@@ -22,11 +44,12 @@ app = create_app()
 
 @app.template_filter()
 def format_datetime(value, format='medium'):
-    timestamp = datetime(value, format)
+    print(value)
     if format == 'full':
-        format="EEEE, d. MMMM y 'at' HH:mm"
+        format="%a %-d %b %-H:%M"
     elif format == 'medium':
-        format="EE dd.MM.y HH:mm"
+        format="%a %-d %b %-H:%M"
+    timestamp = datetime.datetime.strftime(parser.parse(value), format)
     return timestamp.format(format)
 
 
@@ -47,34 +70,21 @@ def facility(id):
     return render_template('facility.html', data=response.json(), facility=id)
 
 
-@app.route('/facility/<id>/activity/<activity>')
-def activity(id, activity):
-    url = 'https://birminghamleisure.legendonlineservices.co.uk/birmingham_comm_rg_home/Timetable/GetClassTimeTable'
-    headers = { 'Content-Type': 'application/json' }
-    payload = {
-    'ResourceSubTypeIdList': activity,
-    'FacilityLocationIdList': id,
-    'DateFrom': datetime.datetime.now().astimezone().isoformat(),
-    'DateTo': (datetime.datetime.now() + timedelta(days=30)).astimezone().isoformat()
-    }
-
-
-    json_payload = json.dumps(payload)
-    response = requests.post(url, headers=headers, data=json_payload)
-
-    activites = {}
-
-    #for a in response.json()["Results"]:
-    #    activites[a.ActivityInstanceId]["title"] = a.title
-
-    return render_template('activity.html', data=response.json(), facility=id)
+@app.route('/facility/<id>/activities')
+def activites(id):
+    activities = request.args.getlist('activity')
+    results = get_activities(id, activities)
+    return render_template('activity.html', data=results, facility=id)
 
 
 
+###########GENERATE ICALENDAR FILE
 
+@app.route('/facility/<id>/activities.ics')
+def activity_ical(id):
 
-@app.route('/facility/<id>/activity/<activity>.ics')
-def activity_ical(id, activity):
+    activities = request.args.getlist('activity')
+
     cal = Calendar()
     cal.add("prodid", "-//leisurecalendar//")
     cal.add("version", "2.0")
@@ -84,54 +94,24 @@ def activity_ical(id, activity):
     timezone.to_ical()
     cal.add_component(timezone)
 
-    url = 'https://birminghamleisure.legendonlineservices.co.uk/birmingham_comm_rg_home/Timetable/GetClassTimeTable'
-    headers = { 'Content-Type': 'application/json' }
-    payload = {
-    'ResourceSubTypeIdList': activity,
-    'FacilityLocationIdList': id,
-    'DateFrom': datetime.datetime.now().astimezone().isoformat(),
-    'DateTo': (datetime.datetime.now() + timedelta(days=90)).astimezone().isoformat()
-    }
-
-
-
-    json_payload = json.dumps(payload)
-    response = requests.post(url, headers=headers, data=json_payload)
+    results = get_activities(id, activities)
 
 
 
 
-    for a in response.json()['Results']:
+    for a in results:
         event = Event()
-        event.add("summary", a["title"])
-        event.add("dtstart", datetime.datetime.strptime(a["start"], "%Y-%m-%dT%H:%M:%S"))#, tzinfo=pytz.timezone("Europe/London"))
-        event.add("dtend", datetime.datetime.strptime(a["end"], "%Y-%m-%dT%H:%M:%S"))#, tzinfo=pytz.timezone("Europe/London"))
+        event.add("summary", f"{a.title}")
+        event.add("dtstart", a.start)#, tzinfo=pytz.timezone("Europe/London"))
+        event.add("dtend", datetime.datetime.strptime(a.end, "%Y-%m-%dT%H:%M:%S"))#, tzinfo=pytz.timezone("Europe/London"))
         event.add("dtstamp", datetime.datetime.now(tz=UTC))
         event.add("priority", 5)
+        event.add("description", f"{a.available}/{a.capacity}\n{a.facility}")
+        event.add("LOCATION", a.location)
         cal.add_component(event)
 
     response = make_response(cal.to_ical())
-    response.headers["Content-Disposition"] = "attachment; filename=activites.ics"
+    #response.headers['Content-Disposition'] = "attachment; filename=activites.ics"
     return response
 
 
-@app.route("/events")
-def events():
-    url = 'https://birminghamleisure.legendonlineservices.co.uk/birmingham_comm_rg_home/Timetable/GetClassTimeTable'
-    headers = {
-        'Content-Type': 'application/json'
-    }
-    payload = {
-        'ResourceSubTypeIdList': '469',
-        #'ResourceSubTypeIdList': '537',
-        'FacilityLocationIdList': '4811',
-        'DateFrom': '2024-06-13T00:00:00+01:00',
-        'DateTo': '2024-06-14T00:00:00+01:00'
-    }
-
-    json_payload = json.dumps(payload)
-    #print(json_payload)
-    response = requests.post(url, headers=headers, data=json_payload)
-    for event in  response.json()['Results']:
-        print(event['title'])
-    return response.json()['Results']

@@ -10,13 +10,13 @@
         <th>Location</th>
         <th>Availibilty</th>
     </thead>
-{% for activity in data.Results %}
+{% for activity in data %}
 <tr>
     <td>{{ activity.title }}</td>
-    <td>{{ activity.start}}</td>
-    <td>{{ activity.end }}</td>
-    <td>{{ activity.FacilityName }}</td>
-    <td>{{ activity.AvailableSlots }}/{{ activity.Capacity }}</td>
+    <td>{{ activity.startshort}}</td>
+    <td>{{ activity.endshort }}</td>
+    <td>{{ activity.facility }}</td>
+    <td>{{ activity.available }}/{{ activity.capacity }}</td>
 </tr>
 
 {% endfor %}
