@@ -1,0 +1,24 @@
+{% extends "base.html" %}
+{% block title %}Event Time Table{% endblock %}
+{% block content %}
+<h1></h1>
+<table>
+    <thead>
+        <th>Name</th>
+        <th>Start</th>
+        <th>End</th>
+        <th>Location</th>
+        <th>Availibilty</th>
+    </thead>
+{% for e in data %}
+<tr>
+    <td>{{ e.title }}</td>
+    <td>{{ e.startshort}}</td>
+    <td>{{ e.endshort }}</td>
+    <td>{{ e.facility }}</td>
+    <td>{{ e.available }}/{{ e.capacity }}</td>
+</tr>
+
+{% endfor %}
+</table>
+{% endblock %}

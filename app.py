@@ -13,7 +13,7 @@ from dateutil import parser
 
 from objects import Activity, Facility
 
-def get_activities(facility, activity, days=30):
+def get_events(facility, activity, days=30):
     url = 'https://birminghamleisure.legendonlineservices.co.uk/birmingham_comm_rg_home/Timetable/GetClassTimeTable'
     headers = { 'Content-Type': 'application/json' }
     payload = {
@@ -31,7 +31,11 @@ def get_activities(facility, activity, days=30):
     return activities
 
 
+def get_locations():
+    return
 
+def get_activities():
+    return
 
 def create_app():
   app = Flask("app")
@@ -44,7 +48,6 @@ app = create_app()
 
 @app.template_filter()
 def format_datetime(value, format='medium'):
-    print(value)
     if format == 'full':
         format="%a %-d %b %-H:%M"
     elif format == 'medium':
@@ -58,8 +61,7 @@ def index():
     url = "https://birminghamleisure.legendonlineservices.co.uk/birmingham_comm_rg_home/filteredlocationhierarchy"
     headers = { 'Content-Type': 'application/json' }
     response = requests.get(url, headers=headers)
-    test = datetime.datetime.strptime("2024-06-13T06:30:00", "%Y-%m-%dT%H:%M:%S")
-    return render_template('home.html', sites = response.json(), test=test)
+    return render_template('home.html', sites = response.json())
 
 
 @app.route('/facility/<id>')
@@ -70,21 +72,23 @@ def facility(id):
     return render_template('facility.html', data=response.json(), facility=id)
 
 
-@app.route('/facility/<id>/activities')
+@app.route('/facility/<id>/events')
 def activites(id):
     activities = request.args.getlist('activity')
-    results = get_activities(id, activities)
-    return render_template('activity.html', data=results, facility=id)
+    results = get_events(id, activities)
+    return render_template('events.html', data=results, facility=id)
 
 
 
 ###########GENERATE ICALENDAR FILE
 
-@app.route('/facility/<id>/activities.ics')
+@app.route('/facility/<id>/events.ics')
 def activity_ical(id):
 
     activities = request.args.getlist('activity')
-
+    days = request.args.getlist('days')
+    days = int(days[0] if days else None)
+    
     cal = Calendar()
     cal.add("prodid", "-//leisurecalendar//")
     cal.add("version", "2.0")
@@ -94,16 +98,13 @@ def activity_ical(id):
     timezone.to_ical()
     cal.add_component(timezone)
 
-    results = get_activities(id, activities)
-
-
-
+    results = get_events(id, activities, days)
 
     for a in results:
         event = Event()
         event.add("summary", f"{a.title}")
         event.add("dtstart", a.start)#, tzinfo=pytz.timezone("Europe/London"))
-        event.add("dtend", datetime.datetime.strptime(a.end, "%Y-%m-%dT%H:%M:%S"))#, tzinfo=pytz.timezone("Europe/London"))
+        event.add("dtend", a.end)
         event.add("dtstamp", datetime.datetime.now(tz=UTC))
         event.add("priority", 5)
         event.add("description", f"{a.available}/{a.capacity}\n{a.facility}")

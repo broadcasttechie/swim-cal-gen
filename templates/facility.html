@@ -4,7 +4,7 @@
 <h1>{{ facility }}</h1>
 <ul>
 {% for activity in data %}
-<li><a href="{{ url_for('activity', id=facility, activity=activity.ResourceSubTypeId) }}">{{ activity.Name }}</a></li>
+<li><a href="{{ url_for('events', id=facility, activity=activity.ResourceSubTypeId) }}">{{ activity.Name }}</a></li>
 
 {% endfor %}
 </ul>
