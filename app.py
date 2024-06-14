@@ -112,7 +112,8 @@ def activity_ical(id):
         cal.add_component(event)
 
     response = make_response(cal.to_ical())
-    #response.headers['Content-Disposition'] = "attachment; filename=activites.ics"
+    if app.debug != True: 
+        response.headers['Content-Disposition'] = "attachment; filename=activites.ics"
     return response
 
 
