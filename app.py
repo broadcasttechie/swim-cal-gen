@@ -87,7 +87,7 @@ def activity_ical(id):
 
     activities = request.args.getlist('activity')
     days = request.args.getlist('days')
-    days = int(days[0] if days else None)
+    days = int(days[0] if days else 30)
     
     cal = Calendar()
     cal.add("prodid", "-//leisurecalendar//")
