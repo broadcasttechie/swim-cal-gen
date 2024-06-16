@@ -19,8 +19,8 @@ def get_events(facility, activity, days=30):
     payload = {
     'ResourceSubTypeIdList': activity,
     'FacilityLocationIdList': facility,
-    'DateFrom': datetime.datetime.now().astimezone().isoformat(),
-    'DateTo': (datetime.datetime.now() + timedelta(days=days)).astimezone().isoformat()
+    'DateFrom': datetime.datetime.now().replace(hour=0,minute=0,second=0,microsecond=0).astimezone().isoformat(),
+    'DateTo': (datetime.datetime.now().replace(hour=0,minute=0,second=0,microsecond=0) + timedelta(days=days+1)).astimezone().isoformat()
     }
     json_payload = json.dumps(payload)
     activities = []
