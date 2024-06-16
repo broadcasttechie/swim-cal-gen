@@ -73,7 +73,7 @@ def facility(id):
 
 
 @app.route('/facility/<id>/events')
-def activites(id):
+def events(id):
     activities = request.args.getlist('activity')
     days = request.args.getlist('days')
     days = int(days[0] if days else 14)
@@ -85,7 +85,7 @@ def activites(id):
 ###########GENERATE ICALENDAR FILE
 
 @app.route('/facility/<id>/events.ics')
-def activity_ical(id):
+def events_ical(id):
 
     activities = request.args.getlist('activity')
     days = request.args.getlist('days')
