@@ -75,7 +75,9 @@ def facility(id):
 @app.route('/facility/<id>/events')
 def activites(id):
     activities = request.args.getlist('activity')
-    results = get_events(id, activities)
+    days = request.args.getlist('days')
+    days = int(days[0] if days else 14)
+    results = get_events(id, activities, days)
     return render_template('events.html', data=results, facility=id)
 
 
