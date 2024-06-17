@@ -13,6 +13,9 @@ from dateutil import parser
 
 from objects import Activity, Facility
 
+
+locationscache = {}
+
 def default_arg(arg, default):
     if arg:
         if arg[0] != '':
@@ -43,7 +46,32 @@ def get_events(facility, activity, days=30):
 
 
 def get_locations():
-    return
+    
+    url = "https://birminghamleisure.legendonlineservices.co.uk/birmingham_comm_rg_home/filteredlocationhierarchy"
+    headers = { 'Content-Type': 'application/json' }
+    response = requests.get(url, headers=headers)
+    resp = response.json()
+    print(resp)
+    print("======")
+    return resp
+
+def get_location_name(id):
+    global locationscache
+    if id in locationscache:
+        return locationscache[id]
+    else:
+
+        raw = get_locations()
+        locations = {}
+        for r in raw:
+            group = r['Name']
+            if len(r['Children']) > 0:
+                for c in r['Children']:
+                    locations[c['Id']] = { "name" : c['Name'], "group" : group}
+        
+        look = int(id)
+        locationscache = locations
+        return locations[look]
 
 def get_activities():
     return
@@ -80,7 +108,7 @@ def facility(id):
     url = f"https://birminghamleisure.legendonlineservices.co.uk/birmingham_comm_rg_home/Bookings/ActivitySubTypes?LocationIds={id}&ReturnAll=true&ResourceSubTypeCategoryId="
     headers = { 'Content-Type': 'application/json' }
     response = requests.get(url, headers=headers)
-    return render_template('facility.html', data=response.json(), facility=id)
+    return render_template('facility.html', data=response.json(), facility=id, facilityname=get_location_name(id))
 
 
 @app.route('/facility/<id>/events')
@@ -89,7 +117,7 @@ def events(id):
     days = default_arg(request.args.getlist('days'), 14)
 
     results = get_events(id, activities, days)
-    return render_template('events.html', data=results, facility=id, activity=activities)
+    return render_template('events.html', data=results, facility=id, activity=activities, days=days, facilityname=get_location_name(id))
 
 
 
@@ -120,7 +148,7 @@ def events_ical(id):
         event.add("dtstamp", datetime.datetime.now(tz=UTC))
         event.add("priority", 5)
         event.add("description", f"{a.available}/{a.capacity}\n{a.facility}")
-        event.add("LOCATION", a.location)
+        event.add("LOCATION", get_location_name(a.location)['name'])
         cal.add_component(event)
 
     response = make_response(cal.to_ical())
