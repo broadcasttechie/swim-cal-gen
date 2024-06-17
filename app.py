@@ -13,6 +13,17 @@ from dateutil import parser
 
 from objects import Activity, Facility
 
+def default_arg(arg, default):
+    if arg:
+        if arg[0] != '':
+            arg = int(arg[0])
+        else:
+            arg = default
+    else:
+        arg = default
+    return arg
+
+
 def get_events(facility, activity, days=30):
     url = 'https://birminghamleisure.legendonlineservices.co.uk/birmingham_comm_rg_home/Timetable/GetClassTimeTable'
     headers = { 'Content-Type': 'application/json' }
@@ -75,8 +86,8 @@ def facility(id):
 @app.route('/facility/<id>/events')
 def events(id):
     activities = request.args.getlist('activity')
-    days = request.args.getlist('days')
-    days = int(days[0] if days else 14)
+    days = default_arg(request.args.getlist('days'), 14)
+
     results = get_events(id, activities, days)
     return render_template('events.html', data=results, facility=id)
 
@@ -88,8 +99,7 @@ def events(id):
 def events_ical(id):
 
     activities = request.args.getlist('activity')
-    days = request.args.getlist('days')
-    days = int(days[0] if days else 30)
+    days = default_arg(request.args.getlist('days'), 30)
     
     cal = Calendar()
     cal.add("prodid", "-//leisurecalendar//")
