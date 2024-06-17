@@ -2,6 +2,10 @@
 {% block title %}Event Time Table{% endblock %}
 {% block content %}
 <h1></h1>
+
+<p>Back to <a href="{{ url_for('facility', id=facility) }}">{{ facility }}</a></p>
+<p>ICAL link: <a href="{{ url_for('events_ical', id=facility, activity=activity, days=days) }}">calendar</a></p>
+
 <table>
     <thead>
         <th>Name</th>

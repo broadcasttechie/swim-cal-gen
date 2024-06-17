@@ -89,7 +89,7 @@ def events(id):
     days = default_arg(request.args.getlist('days'), 14)
 
     results = get_events(id, activities, days)
-    return render_template('events.html', data=results, facility=id)
+    return render_template('events.html', data=results, facility=id, activity=activities)
 
 
 

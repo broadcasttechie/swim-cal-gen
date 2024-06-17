@@ -1,11 +1,20 @@
 {% extends "base.html" %}
 {% block title %}Facilities List{% endblock %}
 {% block content %}
+
+
+<form method="get" action="{{ url_for('events', id=facility) }}">
+    <input type="hidden" id="id" value="{{facility}}" />
 <h1>{{ facility }}</h1>
 <ul>
 {% for activity in data %}
-<li><a href="{{ url_for('events', id=facility, activity=activity.ResourceSubTypeId) }}">{{ activity.Name }}</a></li>
+<li>
+    <input type="checkbox"  id="activity" value="{{activity.ResourceSubTypeId}}" name="activity" />
+    <a href="{{ url_for('events', id=facility, activity=activity.ResourceSubTypeId) }}">{{ activity.Name }}</a>
+</li>
 
 {% endfor %}
 </ul>
+<button type="submit">View calendar</button>
+</form>
 {% endblock %}
