@@ -1,4 +1,36 @@
 {% extends "base.html" %}
+
+{% block head %}
+
+<script src='https://cdn.jsdelivr.net/npm/fullcalendar/index.global.min.js'></script>
+
+
+<script>
+
+    document.addEventListener('DOMContentLoaded', function() {
+
+      const calendarEl = document.getElementById('calendar')
+      const calendar = new FullCalendar.Calendar(calendarEl, {
+        initialView: 'timeGridWeek',
+        height: 'auto',
+        aspectRatio: 2
+      })
+
+      {% for e in data %}
+      calendar.addEvent({
+                title: '{{e.title }}',
+                start: '{{e.start}}',
+                end: '{{e.end}}',
+                location: '{{e.facility}}'
+      })
+
+      {% endfor %}
+      calendar.render()
+    })
+
+
+  </script>
+{% endblock %}
 {% block title %}Event Time Table{% endblock %}
 {% block content %}
 <h1></h1>
@@ -16,6 +48,11 @@
     </select>
     <button type="submit">update</button>
 </form>
+
+  <hr />
+  
+<div id='calendar'></div>
+<hr />
 <table>
     <thead>
         <th>Name</th>
