@@ -1,21 +1,56 @@
 {% extends "base.html" %}
+{% block head %}
+<style>
+    @media (max-width: 700px) {
+        .card-columns.custom-columns {
+            column-count: 1;
+        }
+    }
+    @media (min-width: 700px) {
+        .card-columns.custom-columns {
+            column-count: 2;
+        }
+    }
+    @media (min-width: 1000px) {
+        .card-columns.custom-columns {
+            column-count: 3;
+        }
+    }
+    @media (min-width: 1400px) {
+        .card-columns.custom-columns {
+            column-count: 4;
+        }
+    }
+</style>
+{% endblock %}
 {% block title %}Facilities List{% endblock %}
 {% block content %}
 <p>List of facilities</p>
 
-<ul>
-{% for group in sites %}
-{% if group.Children|length > 0 %}
-<li>{{ group.Name }}</li>
-<li><ul>
-    
-{% for site in group.Children %} 
-<li><a href="{{ url_for('facility', id=site.Id) }}">{{ site.Name }}</a></li>
-{% endfor %}
-</ul></li>
+
+<div class="container" style="margin-top:3em;">
+    <div class="card-columns custom-columns">
+
+
+    {% for group in sites %}
+    {% if group.Children|length > 0 %}
+
+      <div class="card">
+        <div class="card-body">
+          <h5 class="card-title">{{ group.Name|name_cleaner }}</h5>
+          <p class="card-text">  <ul>
+            {% for site in group.Children %} 
+                <li><a href="{{ url_for('facility', id=site.Id) }}">{{ site.Name }}</a></li>
+            {% endfor %}
+            </ul>
+        </p>
+        </div>
+      </div>
+  
 {% endif %}
 {% endfor %}
 
-</ul>
+    </div>
+  </div>
 
 {% endblock %}

@@ -94,6 +94,11 @@ def format_datetime(value, format='medium'):
     timestamp = datetime.datetime.strftime(parser.parse(value), format)
     return timestamp.format(format)
 
+@app.template_filter()
+def name_cleaner(value):
+    value = value.replace("_"," ")
+    value = value.replace(" RG","")
+    return value
 
 @app.route("/")
 def index():
