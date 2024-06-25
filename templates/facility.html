@@ -9,12 +9,41 @@
 <ul>
 {% for activity in data %}
 <li>
-    <input type="checkbox"  id="activity" value="{{activity.ResourceSubTypeId}}" name="activity" />
-    <a href="{{ url_for('events', id=facility, activity=activity.ResourceSubTypeId) }}">{{ activity.Name }}</a>
+    <input type="checkbox"  value="{{activity.ResourceSubTypeId}}" name="activity" id="activity{{activity.ResourceSubTypeId}}" data-name="{{ activity.Name }}" />
+    <!--a href="{{ url_for('events', id=facility, activity=activity.ResourceSubTypeId) }}">{{ activity.Name }}</a-->
+    <label for="activity{{activity.ResourceSubTypeId}}">{{ activity.Name }}</label>
 </li>
 
 {% endfor %}
+<li>
+    <input type="checkbox" id="checkAll" />
+    <label for="checkAll">Check All</input>
+</li>
+<li><input type="checkbox" id="checkSwim" />
+    <label for="checkSwim">Check swimming</label>
+</li>
 </ul>
 <button type="submit">View calendar</button>
 </form>
+
+<script>
+$(document).ready(function(){
+
+
+
+    $("#checkSwim").click(function(){
+        //console.debug($("[data-name*='Swimming']"))
+        $("input[data-name*='Swim']").not(this).prop('checked', this.checked);
+        $("input[data-name*='Aqua']").not(this).prop('checked', this.checked);
+});
+
+    $("#checkAll").click(function(){
+    $('input:checkbox').not(this).prop('checked', this.checked);
+});
+
+});
+
+</script>
+
+
 {% endblock %}
