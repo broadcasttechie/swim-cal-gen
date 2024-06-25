@@ -10,14 +10,40 @@
 
 
 <script>
+    
+colours = ["#09a825",
+            "#ad1457",
+            "#d84315",
+            "#2e7d32",
+            "#1565c0",
+            "#0099CC",
+            "#00695c",
+            "#8e24aa",
+            "#00bcd4",
+            "#616161",
+            "#d32f2f"
+            ]
+const locationskeys = {}
+function locationColour(location){
+    if (!(location in locationskeys))
+    {
+    	locationskeys[location] = colours[Object.keys(locationskeys).length % colours.length]
+    }
+    return locationskeys[location]
+}
 
-    document.addEventListener('DOMContentLoaded', function() {
+function cleanLocation(location,facility){
+    return location.replace(facility + " - ","")
+
+}
+
+document.addEventListener('DOMContentLoaded', function() {
 
       const calendarEl = document.getElementById('calendar')
       const calendar = new FullCalendar.Calendar(calendarEl, {
         initialView: 'timeGridWeek',
         height: 'auto',
-        aspectRatio: 2
+        //aspectRatio: 2,
         // eventDidMount: function(info) {
         //     var tooltip = new Tooltip(info.el, {
         //         title: info.event.extendedProps.description,
@@ -28,16 +54,28 @@
         // },
       })
 
+      
+
       {% for e in data %}
       calendar.addEvent({
                 title: '{{e.title }}',
                 start: '{{e.start}}',
                 end: '{{e.end}}',
-                location: '{{e.facility}}'
+                location: cleanLocation('{{e.facility}}','{{facilityname.name}}'),
+                description: '{{e.facility}}',
+                backgroundColor: locationColour('{{e.facility}}')
       })
-
       {% endfor %}
       calendar.render()
+      
+       for (l in locationskeys) {
+        line = "<div class='.container-sm' style='color:#fff;background-color:"+locationColour(l)+"'>"
+        line += cleanLocation(l,'{{facilityname.name}}')
+        line += "</div>"
+         console.log(line)
+        $('#locationskey').append(line)
+       }
+
     })
 
 
@@ -74,6 +112,10 @@
   <hr />
   
 <div id='calendar'></div>
+<div id="locationskey">
+    
+
+</div>
 <hr />
 <table>
     <thead>
