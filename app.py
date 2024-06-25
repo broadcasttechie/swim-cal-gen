@@ -41,7 +41,7 @@ def get_events(facility, activity, days=30):
     activities = []
     response = requests.post(url, headers=headers, data=json_payload)
     for a in response.json()['Results']:
-        act = Activity(a['title'], a['start'], a['end'], a['FacilityName'], 4811, a['AvailableSlots'], a['Capacity'] )
+        act = Activity(a['title'], a['start'], a['end'], a['FacilityName'], facility, a['AvailableSlots'], a['Capacity'] )
         activities.append(act)
     return activities
 
