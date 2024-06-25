@@ -36,6 +36,7 @@ def get_events(facility, activity, days=30):
     'DateFrom': datetime.datetime.now().replace(hour=0,minute=0,second=0,microsecond=0).astimezone().isoformat(),
     'DateTo': (datetime.datetime.now().replace(hour=0,minute=0,second=0,microsecond=0) + timedelta(days=days+1)).astimezone().isoformat()
     }
+    #print(payload)
     json_payload = json.dumps(payload)
     activities = []
     response = requests.post(url, headers=headers, data=json_payload)
@@ -46,21 +47,20 @@ def get_events(facility, activity, days=30):
 
 
 def get_locations():
-    
     url = "https://birminghamleisure.legendonlineservices.co.uk/birmingham_comm_rg_home/filteredlocationhierarchy"
     headers = { 'Content-Type': 'application/json' }
     response = requests.get(url, headers=headers)
     resp = response.json()
-    print(resp)
-    print("======")
+    # print(resp)
+    # print("======")
     return resp
 
 def get_location_name(id):
     global locationscache
     if id in locationscache:
+        #print(id)
         return locationscache[id]
     else:
-
         raw = get_locations()
         locations = {}
         for r in raw:
@@ -71,10 +71,16 @@ def get_location_name(id):
         
         look = int(id)
         locationscache = locations
+        # print("++++++++++++++++++++++++++++++++++++++++++++++++++++++++++")
+        # print(locations)
+        # print("++++++++++++++++++++++++++++++++++++++++++++++++++++++++++")
         return locations[look]
 
 def get_activities():
     return
+
+def clean_location(location,facility):
+    return location.replace(f"{facility} - ","")
 
 def create_app():
   app = Flask("app")
@@ -152,7 +158,7 @@ def events_ical(id):
         event.add("dtend", a.end)
         event.add("dtstamp", datetime.datetime.now(tz=UTC))
         event.add("priority", 5)
-        event.add("description", f"{a.available}/{a.capacity}\n{a.facility}")
+        event.add("description", f"{a.available}/{a.capacity}\n{clean_location(a.facility,get_location_name(a.location)['name'])}")
         event.add("LOCATION", get_location_name(a.location)['name'])
         cal.add_component(event)
 
