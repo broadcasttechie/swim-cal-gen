@@ -5,6 +5,8 @@
 {% block head %}
 
 <script src='https://cdn.jsdelivr.net/npm/fullcalendar/index.global.min.js'></script>
+<script src='https://unpkg.com/tooltip.js/dist/umd/tooltip.min.js'></script>
+<script src="https://unpkg.com/popper.js/dist/umd/popper.min.js"></script>
 
 
 <script>
@@ -16,6 +18,14 @@
         initialView: 'timeGridWeek',
         height: 'auto',
         aspectRatio: 2
+        // eventDidMount: function(info) {
+        //     var tooltip = new Tooltip(info.el, {
+        //         title: info.event.extendedProps.description,
+        //         placement: 'top',
+        //         trigger: 'hover',
+        //         container: 'body'
+        //     });
+        // },
       })
 
       {% for e in data %}
