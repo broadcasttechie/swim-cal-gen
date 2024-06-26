@@ -1,6 +1,15 @@
 {% extends "base.html" %}
 
-
+{# This section sets the min/max hours displayed in the calendar based on the results. #}
+{%- set ns = namespace(min_hour=9,max_hour=17) -%}
+{% for e in data %}
+{% if ((e.start.strftime('%H')|int) <= ns.min_hour) %}
+{% set ns.min_hour = e.start.strftime('%H')|int %}
+{% endif %}
+{% if ((e.end.strftime('%H')|int) >= ns.max_hour) %}
+{% set ns.max_hour = e.end.strftime('%H')|int +1 %}
+{% endif %}
+{% endfor %}
 
 {% block head %}
 
@@ -43,6 +52,8 @@ document.addEventListener('DOMContentLoaded', function() {
       const calendar = new FullCalendar.Calendar(calendarEl, {
         initialView: 'timeGridWeek',
         height: 'auto',
+        slotMinTime: '{{ '%02d' % ns.min_hour }}:00:00',
+        slotMaxTime: '{{ '%02d' % ns.max_hour }}:00:00',
         //aspectRatio: 2,
         // eventDidMount: function(info) {
         //     var tooltip = new Tooltip(info.el, {
@@ -113,6 +124,7 @@ document.addEventListener('DOMContentLoaded', function() {
   
 <div id='calendar'></div>
 <div id="locationskey">
+<div class="container text-center"><div class="row row-cols-auto" id="locationskey"><div class="col">Key:</div></div>
     
 
 </div>
