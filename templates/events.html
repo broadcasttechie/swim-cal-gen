@@ -80,10 +80,10 @@ document.addEventListener('DOMContentLoaded', function() {
       calendar.render()
       
        for (l in locationskeys) {
-        line = "<div class='.container-sm' style='color:#fff;background-color:"+locationColour(l)+"'>"
+        line = "<div class='col' style='color:#fff;background-color:"+locationColour(l)+"'>"
         line += cleanLocation(l,'{{facilityname.name}}')
         line += "</div>"
-         console.log(line)
+        //console.log(line)
         $('#locationskey').append(line)
        }
 
@@ -123,7 +123,6 @@ document.addEventListener('DOMContentLoaded', function() {
   <hr />
   
 <div id='calendar'></div>
-<div id="locationskey">
 <div class="container text-center"><div class="row row-cols-auto" id="locationskey"><div class="col">Key:</div></div>
     
 
